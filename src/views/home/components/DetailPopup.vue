@@ -118,70 +118,93 @@ const timelineData = [
   width: 100%;
   height: 100%;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(3, 8, 22, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
 }
 
 .detail-popup-container {
-  width: 1000px;
-  max-height: 85vh;
-  background: rgba(11, 64, 101, 0.9) !important;
-  border: 1px solid #00ddff !important;
+  width: 1200px;
+  max-height: 92vh;
+  background: rgba(11, 46, 75, 0.85);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(0, 195, 255, 0.4);
+  box-shadow: inset 0 0 30px rgba(0, 195, 255, 0.15), 0 15px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
-  animation: popupFadeIn 0.3s ease-out;
+  animation: popupFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   .popup-header {
-    height: 50px;
-    padding: 0 20px;
+    height: 56px;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(90deg, #00ddff44 0%, transparent 100%);
-    border-bottom: 1px solid #00ddff44;
+    background: linear-gradient(90deg, rgba(0, 221, 255, 0.15) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(0, 221, 255, 0.2);
 
     .title {
       font-size: 18px;
-      font-weight: bold;
+      font-weight: 600;
       color: #00ddff;
+      letter-spacing: 1px;
     }
 
     .close-btn {
-      font-size: 24px;
+      font-size: 28px;
       color: rgba(255, 255, 255, 0.6);
       cursor: pointer;
+      transition: color 0.3s, transform 0.3s;
 
       &:hover {
-        color: #fff;
+        color: #00ddff;
+        transform: rotate(90deg);
       }
     }
   }
 
   .popup-body {
     flex: 1;
-    padding: 20px;
+    padding: 24px;
     overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 221, 255, 0.3);
+      border-radius: 2px;
+    }
   }
 }
 
 .popup-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
 }
 
 .module-box {
-  background: rgba(0, 221, 255, 0.05);
-  border: 1px solid rgba(0, 221, 255, 0.1);
-  padding: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 20px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(0, 221, 255, 0.04);
+    border-color: rgba(0, 221, 255, 0.2);
+    box-shadow: inset 0 0 20px rgba(0, 195, 255, 0.05);
+  }
 
   .module-title {
     font-size: 16px;
     color: #00ddff;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -192,6 +215,7 @@ const timelineData = [
       height: 16px;
       background: #00ddff;
       margin-right: 10px;
+      border-radius: 2px;
     }
   }
 }
@@ -199,18 +223,23 @@ const timelineData = [
 .info-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 16px;
 
   .info-item {
-    font-size: 13px;
-    line-height: 20px;
+    font-size: 14px;
+    line-height: 22px;
+    display: flex;
+    align-items: flex-start;
 
     label {
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(255, 255, 255, 0.7);
+      width: 75px;
+      flex-shrink: 0;
     }
 
     span {
       color: #fff;
+      font-weight: 500;
     }
 
     &.full {
@@ -219,80 +248,130 @@ const timelineData = [
 
     &.img-box {
       grid-column: span 2;
+      flex-direction: column;
+
+      label {
+        margin-bottom: 8px;
+      }
     }
   }
 
   .mock-img {
-    margin-top: 5px;
-    height: 100px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
+    width: 100%;
+    height: 140px;
+    background: rgba(0, 195, 255, 0.05);
+    border: 1px dashed rgba(0, 195, 255, 0.3);
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(0, 221, 255, 0.5);
     background-image: url('@/assets/images/image2.png');
-    background-size: 100% 100%;
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: #00ddff;
+    }
   }
 }
 
 .timeline {
   padding-left: 10px;
+  margin-top: 10px;
 
   .time-node {
-    border-left: 1px solid #00ddff44;
-    padding: 0 0 20px 20px;
+    border-left: 1px dashed rgba(0, 221, 255, 0.3);
+    padding: 0 0 25px 25px;
     position: relative;
+    transition: all 0.3s;
 
     &:last-child {
       border-left: none;
+      padding-bottom: 0;
+    }
+
+    &:hover {
+      .node-dot {
+        transform: scale(1.2);
+        box-shadow: 0 0 15px #00ddff;
+      }
+
+      .node-step {
+        color: #00ddff;
+      }
     }
 
     .node-dot {
       position: absolute;
       left: -6px;
-      top: 0;
-      width: 10px;
-      height: 10px;
+      top: 2px;
+      width: 11px;
+      height: 11px;
       background: #00ddff;
       border-radius: 50%;
-      box-shadow: 0 0 10px #00ddff;
+      box-shadow: 0 0 8px #00ddff;
+      transition: all 0.3s;
     }
 
     .node-step {
       font-size: 14px;
       color: #fff;
+      font-weight: 500;
+      margin-bottom: 4px;
+      transition: color 0.3s;
     }
 
     .node-time {
-      font-size: 12px;
+      font-size: 13px;
       color: rgba(255, 255, 255, 0.5);
+      font-family: 'Digital-7', Arial, sans-serif;
+      letter-spacing: 0.5px;
     }
   }
 }
 
 .chart-mock {
+  padding-top: 5px;
+
   .bar-row {
-    margin-bottom: 12px;
+    margin-bottom: 18px;
 
     .bar-label {
-      font-size: 12px;
+      font-size: 13px;
       color: rgba(255, 255, 255, 0.7);
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
     .bar-wrap {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
+      height: 8px;
+      background: rgba(0, 195, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
     }
 
     .bar-inner {
       height: 100%;
-      background: linear-gradient(90deg, #00ddff, #0040ff);
-      border-radius: 3px;
+      background: linear-gradient(90deg, rgba(0, 195, 255, 0.3), #00ddff);
+      border-radius: 4px;
+      position: relative;
+      transition: width 1s ease-out;
+
+      &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 10px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #fff;
+        opacity: 0.8;
+      }
     }
   }
 }
@@ -300,24 +379,36 @@ const timelineData = [
 .finance-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 16px;
+  padding-top: 5px;
 
   .fin-card {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 15px;
+    background: rgba(0, 195, 255, 0.05);
+    border: 1px solid rgba(0, 195, 255, 0.1);
+    border-radius: 4px;
+    padding: 16px;
     text-align: center;
-    border-bottom: 2px solid #00ddff33;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(0, 195, 255, 0.1);
+      border-color: rgba(0, 195, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 
     .fin-val {
-      font-size: 18px;
+      font-family: 'Digital-7', sans-serif;
+      font-size: 26px;
       font-weight: bold;
-      color: #ffcc00;
+      color: #00ddff;
+      text-shadow: 0 0 10px rgba(0, 221, 255, 0.4);
+      margin-bottom: 6px;
     }
 
     .fin-lab {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.5);
-      margin-top: 5px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
     }
   }
 }
@@ -325,12 +416,12 @@ const timelineData = [
 @keyframes popupFadeIn {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95) translateY(20px);
   }
 
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateY(0);
   }
 }
 </style>

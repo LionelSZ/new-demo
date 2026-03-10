@@ -5,7 +5,7 @@
 
     <!-- 左侧面板 -->
     <div class="left-panels">
-      <div class="panel-item glass-card">
+      <div class="panel-item glass-card flex-1">
         <div class="panel-header">电站概览</div>
         <div class="panel-content grid-2">
           <div class="data-item" v-for="item in powerStationOverview" :key="item.label">
@@ -14,7 +14,7 @@
           </div>
         </div>
       </div>
-      <div class="panel-item glass-card mt-20">
+      <div class="panel-item glass-card mt-20 flex-1">
         <div class="panel-header">储能概览</div>
         <div class="panel-content grid-2">
           <div class="data-item" v-for="item in energyStorageOverview" :key="item.label">
@@ -362,6 +362,8 @@ onMounted(() => {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 15px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
     &:hover {
       background: rgba(11, 64, 101, 0.6);
@@ -379,15 +381,28 @@ onMounted(() => {
     padding-left: 10px;
     margin-bottom: 15px;
     background: linear-gradient(90deg, rgba(0, 221, 255, 0.1) 0%, transparent 100%);
+    flex-shrink: 0;
   }
 
   .panel-content {
     font-size: 14px;
+    flex: 1;
+    overflow-y: auto;
+    
+    // 隐藏滚动条但保留功能
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 221, 255, 0.3);
+      border-radius: 2px;
+    }
 
     &.grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 15px 10px;
+      grid-auto-rows: 1fr;
+      gap: 12px;
     }
 
     &.scroll-y {
@@ -398,23 +413,69 @@ onMounted(() => {
   .data-item {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 221, 255, 0.05) 0%, rgba(0, 221, 255, 0) 100%);
+    border: 1px solid rgba(0, 221, 255, 0.1);
+    border-radius: 6px;
+    padding: 10px 15px;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(0, 221, 255, 0.15) 0%, rgba(0, 221, 255, 0.05) 100%);
+      border-color: rgba(0, 221, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(0, 221, 255, 0.05);
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 15%;
+      bottom: 15%;
+      width: 3px;
+      background: #00ddff;
+      border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 5px #00ddff;
+    }
 
     .label {
-      color: rgba(255, 255, 255, 0.7);
-      margin-bottom: 4px;
-      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 8px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+
+      &::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: #00ddff;
+        border-radius: 50%;
+        margin-right: 6px;
+        box-shadow: 0 0 4px #00ddff;
+      }
     }
 
     .value {
-      color: #fff;
-      font-family: 'Digital-7', sans-serif; // 预设单位或自定义字体
-      font-size: 20px;
+      color: #00ddff;
+      font-family: 'Digital-7', Arial, sans-serif;
+      font-size: 26px;
       font-weight: bold;
+      text-shadow: 0 0 10px rgba(0, 221, 255, 0.3);
+      padding-left: 12px;
+      line-height: 1;
 
       small {
+        font-family: sans-serif;
         font-size: 12px;
-        margin-left: 4px;
-        color: #00ddff;
+        margin-left: 6px;
+        color: rgba(255, 255, 255, 0.6);
+        text-shadow: none;
+        font-weight: normal;
       }
     }
   }

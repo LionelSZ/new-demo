@@ -56,6 +56,9 @@
         </div>
       </div>
     </div>
+
+    <!-- 详情弹窗组件 -->
+    <DetailPopup :visible="popupVisible" @update:visible="popupVisible = $event" :data="popupData" />
   </div>
 </template>
 
@@ -64,6 +67,11 @@ import { onMounted, ref } from 'vue';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapboxConfig } from '@/config/mapbox';
+import DetailPopup from './components/DetailPopup.vue';
+
+// 弹窗状态
+const popupVisible = ref(false);
+const popupData = ref({});
 
 // 模拟数据
 const powerStationOverview = ref([
@@ -111,19 +119,111 @@ const industryNews = ref([
 ]);
 
 onMounted(() => {
-  // Mapbox 初始化 (使用占位 Token)
-  // mapboxgl.accessToken = 'pk.eyJ1IjoiYWRtaW4iLCJhIjoiY2p4eGxiNHlxMG5icDN5cXJ4d3ByNXljdCJ9.placeholder';
+  // Mapbox 初始化
   mapboxgl.accessToken = MapboxConfig.MAPBOX_TOKEN;
 
   const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/dark-v11', // 暗色地图风格
-    center: [108.9, 34.2], // 中心定位中国
-    zoom: 3.5,
+    style: 'mapbox://styles/mapbox/dark-v11',
+    center: [108.9, 34.2],
+    zoom: 3.8,
   });
 
-  map.on('load', () => {
-    // 模拟撒点数据
+  // 加载 SVG 图标
+  const loadSvgIcon = (url, id) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => {
+        if (!map.hasImage(id)) {
+          map.addImage(id, img);
+        }
+        resolve();
+      };
+    });
+  };
+
+  map.on('load', async () => {
+    // 1. 加载图标
+    await Promise.all([
+      loadSvgIcon('/src/assets/svg/point-1.svg', 'icon-power'),
+      loadSvgIcon('/src/assets/svg/point-2.svg', 'icon-storage')
+    ]);
+
+    // 2. 获取中国边界 GeoJSON
+    try {
+      const response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000.json');
+      const chinaGeoJSON = await response.json();
+
+      map.addSource('china-boundary', {
+        type: 'geojson',
+        data: chinaGeoJSON
+      });
+
+      // 填充底色
+      map.addLayer({
+        id: 'china-fill',
+        type: 'fill',
+        source: 'china-boundary',
+        paint: {
+          'fill-color': '#0b4065',
+          'fill-opacity': 0.1
+        }
+      });
+
+      // 静态边框
+      map.addLayer({
+        id: 'china-line-static',
+        type: 'line',
+        source: 'china-boundary',
+        paint: {
+          'line-color': '#00ddff',
+          'line-width': 1,
+          'line-opacity': 0.3
+        }
+      });
+
+      // 外部发光层
+      map.addLayer({
+        id: 'china-line-glow',
+        type: 'line',
+        source: 'china-boundary',
+        paint: {
+          'line-color': '#00ddff',
+          'line-width': 6,
+          'line-opacity': 0.4,
+          'line-blur': 4
+        }
+      });
+
+      // 核心高亮线
+      map.addLayer({
+        id: 'china-line-core',
+        type: 'line',
+        source: 'china-boundary',
+        paint: {
+          'line-color': '#00ddff',
+          'line-width': 2,
+          'line-opacity': 0.8
+        }
+      });
+
+      // 呼吸动画效果 (仅改变透明度，比位移更流畅)
+      let opacity = 0.4;
+      let direction = 1;
+      const animateGlow = () => {
+        opacity += 0.005 * direction;
+        if (opacity >= 0.6 || opacity <= 0.2) direction *= -1;
+        map.setPaintProperty('china-line-glow', 'line-opacity', opacity);
+        requestAnimationFrame(animateGlow);
+      };
+      animateGlow();
+
+    } catch (error) {
+      console.error('Failed to fetch China GeoJSON:', error);
+    }
+
+    // 3. 模拟撒点数据
     const points = {
       type: 'FeatureCollection',
       features: [
@@ -131,37 +231,37 @@ onMounted(() => {
         { type: 'Feature', geometry: { type: 'Point', coordinates: [121.4, 31.2] }, properties: { type: 'storage', name: '上海库' } },
         { type: 'Feature', geometry: { type: 'Point', coordinates: [113.2, 23.1] }, properties: { type: 'power', name: '广州站' } },
         { type: 'Feature', geometry: { type: 'Point', coordinates: [104.0, 30.6] }, properties: { type: 'storage', name: '成都库' } },
-        { type: 'Feature', geometry: { type: 'Point', coordinates: [87.6, 43.8] }, properties: { type: 'power', name: '乌鲁木齐站' } }
+        { type: 'Feature', geometry: { type: 'Point', coordinates: [87.6, 43.8] }, properties: { type: 'power', name: '乌鲁木齐站' } },
+        { type: 'Feature', geometry: { type: 'Point', coordinates: [114.3, 30.5] }, properties: { type: 'power', name: '武汉站' } },
+        { type: 'Feature', geometry: { type: 'Point', coordinates: [108.9, 34.3] }, properties: { type: 'storage', name: '西安库' } }
       ]
     };
 
     map.addSource('points', { type: 'geojson', data: points });
 
-    // 电站图层 (圆形简化展示)
+    // 电站图层 (使用 SVG)
     map.addLayer({
       id: 'power-layer',
-      type: 'circle',
+      type: 'symbol',
       source: 'points',
       filter: ['==', 'type', 'power'],
-      paint: {
-        'circle-radius': 8,
-        'circle-color': '#00ffcc',
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#fff'
+      layout: {
+        'icon-image': 'icon-power',
+        'icon-size': 0.2,
+        'icon-allow-overlap': true
       }
     });
 
-    // 储能图层
+    // 储能图层 (使用 SVG)
     map.addLayer({
       id: 'storage-layer',
-      type: 'circle',
+      type: 'symbol',
       source: 'points',
       filter: ['==', 'type', 'storage'],
-      paint: {
-        'circle-radius': 8,
-        'circle-color': '#ffcc00',
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#fff'
+      layout: {
+        'icon-image': 'icon-storage',
+        'icon-size': 0.2,
+        'icon-allow-overlap': true
       }
     });
 
@@ -180,6 +280,16 @@ onMounted(() => {
     map.on('mouseleave', ['power-layer', 'storage-layer'], () => {
       map.getCanvas().style.cursor = '';
       popup.remove();
+    });
+
+    // 点击事件触发详细弹窗
+    map.on('click', ['power-layer', 'storage-layer'], (e) => {
+      const properties = e.features[0].properties;
+      popupData.value = {
+        name: properties.name,
+        type: properties.type,
+      };
+      popupVisible.value = true;
     });
   });
 });

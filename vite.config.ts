@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   plugins: [
@@ -12,7 +16,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': '/src',
+      '@': path.resolve(__dirname, './src')  // ✅ 正确用法
     }
   },
   server: {

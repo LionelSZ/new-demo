@@ -68,6 +68,10 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapboxConfig } from '@/config/mapbox';
 import DetailPopup from './components/DetailPopup.vue';
+import point1Svg from '@/assets/svg/point-1.svg';  // ✅ 导入 SVG
+import point2Svg from '@/assets/svg/point-2.svg';  // ✅ 导入 SVG
+import chinaGeoJSON from '@/assets/map/json/china100000.json'; // ✅ 导入 JSON 数据
+
 
 // 弹窗状态
 const popupVisible = ref(false);
@@ -146,15 +150,14 @@ onMounted(() => {
   map.on('load', async () => {
     // 1. 加载图标
     await Promise.all([
-      loadSvgIcon('/src/assets/svg/point-1.svg', 'icon-power'),
-      loadSvgIcon('/src/assets/svg/point-2.svg', 'icon-storage')
+      loadSvgIcon(point1Svg, 'icon-power'),
+      loadSvgIcon(point2Svg, 'icon-storage')
     ]);
 
     // 2. 获取中国边界 GeoJSON
     try {
-      const response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000.json');
-      const chinaGeoJSON = await response.json();
-
+      // const response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000.json');
+      // const chinaGeoJSON = await response.json();
       map.addSource('china-boundary', {
         type: 'geojson',
         data: chinaGeoJSON
